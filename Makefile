@@ -5,6 +5,15 @@ default: build
 build: check_go_version
 	go build -o ./bin/kubectl-check-ownerreferences $(shell ./build/print-ldflags.sh) ./
 
+build-release: check_go_version
+	rm -fr ./bin
+	mkdir -p ./bin/darwin/amd64
+	mkdir -p ./bin/linux/amd64
+	GOOS=darwin GOARCH=amd64 go build -trimpath -o ./bin/darwin/amd64/kubectl-check-ownerreferences $(shell ./build/print-ldflags.sh) ./
+	GOOS=linux  GOARCH=amd64 go build -trimpath -o ./bin/linux/amd64/kubectl-check-ownerreferences  $(shell ./build/print-ldflags.sh) ./
+	tar -cvzf ./bin/kubectl-check-ownerreferences-darwin-amd64.tar.gz LICENSE -C ./bin/darwin/amd64 kubectl-check-ownerreferences
+	tar -cvzf ./bin/kubectl-check-ownerreferences-linux-amd64.tar.gz  LICENSE -C ./bin/linux/amd64  kubectl-check-ownerreferences
+
 install: check_go_version
 	go install $(shell ./build/print-ldflags.sh) ./
 
