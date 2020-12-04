@@ -2,7 +2,11 @@
 problematic items in `metadata.ownerReferences`. See http://issue.k8s.io/65200
 and http://issue.k8s.io/92743 for more context.
 
-**To install:**
+**To download:**
+
+Pre-built binaries are available for the [latest release](https://github.com/kubernetes-sigs/kubectl-check-ownerreferences/releases/latest) for darwin and linux.
+
+**To install from source:**
 
 ```sh
 git clone https://github.com/kubernetes-sigs/kubectl-check-ownerreferences.git
