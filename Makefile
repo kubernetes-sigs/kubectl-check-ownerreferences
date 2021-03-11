@@ -1,5 +1,7 @@
 .PHONY: default install build clean test fmt vet lint
 
+all: build test fmt vet lint
+
 default: build
 
 build: check_go_version
@@ -10,8 +12,10 @@ build-release: check_go_version
 	mkdir -p ./bin/darwin/amd64
 	mkdir -p ./bin/linux/amd64
 	GOOS=darwin GOARCH=amd64 go build -trimpath -o ./bin/darwin/amd64/kubectl-check-ownerreferences $(shell ./build/print-ldflags.sh) ./
+	GOOS=darwin GOARCH=arm64 go build -trimpath -o ./bin/darwin/arm64/kubectl-check-ownerreferences $(shell ./build/print-ldflags.sh) ./
 	GOOS=linux  GOARCH=amd64 go build -trimpath -o ./bin/linux/amd64/kubectl-check-ownerreferences  $(shell ./build/print-ldflags.sh) ./
 	tar -cvzf ./bin/kubectl-check-ownerreferences-darwin-amd64.tar.gz LICENSE -C ./bin/darwin/amd64 kubectl-check-ownerreferences
+	tar -cvzf ./bin/kubectl-check-ownerreferences-darwin-arm64.tar.gz LICENSE -C ./bin/darwin/arm64 kubectl-check-ownerreferences
 	tar -cvzf ./bin/kubectl-check-ownerreferences-linux-amd64.tar.gz  LICENSE -C ./bin/linux/amd64  kubectl-check-ownerreferences
 
 install: check_go_version
@@ -51,9 +55,8 @@ lint:
 check_go_version:
 	@OUTPUT=`go version`; \
 	case "$$OUTPUT" in \
-	*"go1.13"*);; \
-	*"go1.14"*);; \
 	*"go1.15"*);; \
+	*"go1.16"*);; \
 	*"devel"*);; \
 	*) \
 		echo "Expected: go version go1.13.*, go1.14.*, go1.15.*, or devel"; \

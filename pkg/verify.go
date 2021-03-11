@@ -39,6 +39,7 @@ import (
 	"k8s.io/client-go/tools/pager"
 )
 
+// VerifyGCOptions contains options controlling how the verify task is run
 type VerifyGCOptions struct {
 	DiscoveryClient discovery.DiscoveryInterface
 	MetadataClient  metadata.Interface
@@ -47,13 +48,27 @@ type VerifyGCOptions struct {
 	Stdout          io.Writer
 }
 
+// Validate ensures the specified options are valid
 func (v *VerifyGCOptions) Validate() error {
+	if v.DiscoveryClient == nil {
+		return fmt.Errorf("discovery client is required")
+	}
+	if v.MetadataClient == nil {
+		return fmt.Errorf("metadata client is required")
+	}
+	if v.Stderr == nil {
+		return fmt.Errorf("stderr is required")
+	}
+	if v.Stdout == nil {
+		return fmt.Errorf("stdout is required")
+	}
 	if v.Output != "" && v.Output != "json" {
 		return fmt.Errorf("invalid output format, only '' and 'json' are supported: %v", v.Output)
 	}
 	return nil
 }
 
+// Run executes the verify operation
 func (v *VerifyGCOptions) Run() error {
 	errorCount := 0
 	warningCount := 0
@@ -251,6 +266,10 @@ func (v *VerifyGCOptions) Run() error {
 					} else {
 						actualOwnerGV, _ := schema.ParseGroupVersion(actualOwner.APIVersion)
 						if actualOwner.Kind == ownerRef.Kind && actualOwnerGV.Group == ownerGV.Group {
+							groupKindOk = true
+						} else if strings.ToLower(actualOwner.Kind) == ownerRef.Kind && actualOwnerGV.Group == ownerGV.Group {
+							// RESTMapper tolerates an all-lowercase kind as input to the lookup
+							// https://github.com/kubernetes/kubernetes/blob/release-1.20/staging/src/k8s.io/client-go/restmapper/discovery.go#L114
 							groupKindOk = true
 						} else {
 							actualGVK = actualOwnerGV.WithKind(actualOwner.Kind)

@@ -333,6 +333,61 @@ func TestVerify(t *testing.T) {
             No invalid ownerReferences found
 			`,
 		},
+		{
+			name: "case-different references",
+			resources: []*metav1.APIResourceList{
+				v1Resources,
+				{
+					GroupVersion: "group1/v1",
+					APIResources: []metav1.APIResource{{Name: "multiversionresources", SingularName: "multiversionresource", Namespaced: true, Kind: "MultiVersionKind", Verbs: gcVerbs}},
+				},
+				{
+					GroupVersion: "group1/v1beta1",
+					APIResources: []metav1.APIResource{{Name: "multiversionresources", SingularName: "multiversionresource", Namespaced: true, Kind: "MultiVersionKind", Verbs: gcVerbs}},
+				},
+			},
+			adjustMetadataClient: func(metadataClient *metadatafake.FakeMetadataClient) {
+				addObject(t, metadataClient, "group1/v1", "multiversionresources", "MultiVersionKind", "mgr1", "ns1", "mgruid1")
+				addObject(t, metadataClient, "v1", "pods", "Pod", "exact", "ns1", "poduid1",
+					metav1.OwnerReference{APIVersion: "group1/v1beta1", Kind: "MultiVersionKind", Name: "mgr1", UID: types.UID("mgruid1")},
+				)
+				addObject(t, metadataClient, "v1", "pods", "Pod", "lowercase", "ns1", "poduid1",
+					metav1.OwnerReference{APIVersion: "group1/v1beta1", Kind: "multiversionkind", Name: "mgr1", UID: types.UID("mgruid1")},
+				)
+				addObject(t, metadataClient, "v1", "pods", "Pod", "uppercase", "ns1", "poduid1",
+					metav1.OwnerReference{APIVersion: "group1/v1beta1", Kind: "MULTIVERSIONKIND", Name: "mgr1", UID: types.UID("mgruid1")},
+				)
+				addObject(t, metadataClient, "v1", "pods", "Pod", "edgecase", "ns1", "poduid1",
+					metav1.OwnerReference{APIVersion: "group1/v1beta1", Kind: "MultiversionkinD", Name: "mgr1", UID: types.UID("mgruid1")},
+				)
+				addObject(t, metadataClient, "v1", "pods", "Pod", "pluralkind", "ns1", "poduid1",
+					metav1.OwnerReference{APIVersion: "group1/v1beta1", Kind: "multiversionkinds", Name: "mgr1", UID: types.UID("mgruid1")},
+				)
+				addObject(t, metadataClient, "v1", "pods", "Pod", "pluralresource", "ns1", "poduid1",
+					metav1.OwnerReference{APIVersion: "group1/v1beta1", Kind: "multiversionresources", Name: "mgr1", UID: types.UID("mgruid1")},
+				)
+				addObject(t, metadataClient, "v1", "pods", "Pod", "singularresource", "ns1", "poduid1",
+					metav1.OwnerReference{APIVersion: "group1/v1beta1", Kind: "multiversionresource", Name: "mgr1", UID: types.UID("mgruid1")},
+				)
+			},
+			expectOut: `
+			GROUP   RESOURCE   NAMESPACE   NAME               OWNER_UID   LEVEL   MESSAGE
+			        pods       ns1         edgecase           mgruid1     Error   cannot resolve owner apiVersion/kind: no matches for kind "MultiversionkinD" in version "group1/v1beta1"
+			        pods       ns1         pluralkind         mgruid1     Error   cannot resolve owner apiVersion/kind: no matches for kind "multiversionkinds" in version "group1/v1beta1"
+			        pods       ns1         pluralresource     mgruid1     Error   cannot resolve owner apiVersion/kind: no matches for kind "multiversionresources" in version "group1/v1beta1"
+			        pods       ns1         singularresource   mgruid1     Error   cannot resolve owner apiVersion/kind: no matches for kind "multiversionresource" in version "group1/v1beta1"
+			        pods       ns1         uppercase          mgruid1     Error   cannot resolve owner apiVersion/kind: no matches for kind "MULTIVERSIONKIND" in version "group1/v1beta1"
+			`,
+			expectErr: `
+			fetching v1, nodes
+			got 0 items
+			fetching v1, pods
+			got 7 items
+			fetching group1/v1, multiversionresources
+			got 1 item
+			5 errors, 0 warnings
+			`,
+		},
 	}
 
 	klog.InitFlags(nil)
