@@ -50,6 +50,18 @@ type VerifyGCOptions struct {
 
 // Validate ensures the specified options are valid
 func (v *VerifyGCOptions) Validate() error {
+	if v.DiscoveryClient == nil {
+		return fmt.Errorf("discovery client is required")
+	}
+	if v.MetadataClient == nil {
+		return fmt.Errorf("metadata client is required")
+	}
+	if v.Stderr == nil {
+		return fmt.Errorf("stderr is required")
+	}
+	if v.Stdout == nil {
+		return fmt.Errorf("stdout is required")
+	}
 	if v.Output != "" && v.Output != "json" {
 		return fmt.Errorf("invalid output format, only '' and 'json' are supported: %v", v.Output)
 	}
