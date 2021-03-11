@@ -39,6 +39,7 @@ import (
 	"k8s.io/client-go/tools/pager"
 )
 
+// VerifyGCOptions contains options controlling how the verify task is run
 type VerifyGCOptions struct {
 	DiscoveryClient discovery.DiscoveryInterface
 	MetadataClient  metadata.Interface
@@ -47,6 +48,7 @@ type VerifyGCOptions struct {
 	Stdout          io.Writer
 }
 
+// Validate ensures the specified options are valid
 func (v *VerifyGCOptions) Validate() error {
 	if v.Output != "" && v.Output != "json" {
 		return fmt.Errorf("invalid output format, only '' and 'json' are supported: %v", v.Output)
@@ -54,6 +56,7 @@ func (v *VerifyGCOptions) Validate() error {
 	return nil
 }
 
+// Run executes the verify operation
 func (v *VerifyGCOptions) Run() error {
 	errorCount := 0
 	warningCount := 0
