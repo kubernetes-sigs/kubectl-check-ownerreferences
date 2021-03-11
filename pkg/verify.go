@@ -252,6 +252,10 @@ func (v *VerifyGCOptions) Run() error {
 						actualOwnerGV, _ := schema.ParseGroupVersion(actualOwner.APIVersion)
 						if actualOwner.Kind == ownerRef.Kind && actualOwnerGV.Group == ownerGV.Group {
 							groupKindOk = true
+						} else if strings.ToLower(actualOwner.Kind) == ownerRef.Kind && actualOwnerGV.Group == ownerGV.Group {
+							// RESTMapper tolerates an all-lowercase kind as input to the lookup
+							// https://github.com/kubernetes/kubernetes/blob/release-1.20/staging/src/k8s.io/client-go/restmapper/discovery.go#L114
+							groupKindOk = true
 						} else {
 							actualGVK = actualOwnerGV.WithKind(actualOwner.Kind)
 						}
