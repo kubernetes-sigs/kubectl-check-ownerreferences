@@ -1,5 +1,7 @@
 .PHONY: default install build clean test fmt vet lint
 
+all: build test fmt vet lint
+
 default: build
 
 build: check_go_version
