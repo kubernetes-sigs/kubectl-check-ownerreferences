@@ -23,15 +23,14 @@ import (
 	"strings"
 
 	"github.com/spf13/pflag"
-	klog "k8s.io/klog/v2"
+	"k8s.io/klog/v2"
 
 	"sigs.k8s.io/kubectl-check-ownerreferences/pkg"
 
-	genericclioptions "k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/metadata"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/exec"
-	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
 )
 
