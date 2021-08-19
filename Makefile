@@ -55,11 +55,11 @@ lint:
 check_go_version:
 	@OUTPUT=`go version`; \
 	case "$$OUTPUT" in \
+	*"go1.15"*);; \
 	*"go1.16"*);; \
-	*"go1.17"*);; \
 	*"devel"*);; \
 	*) \
-		echo "Expected: go version go1.16.*, go1.17.*, or devel"; \
+		echo "Expected: go version go1.13.*, go1.14.*, go1.15.*, or devel"; \
 		echo "Found:    $$OUTPUT"; \
 		exit 1; \
 	;; \
