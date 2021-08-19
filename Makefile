@@ -4,7 +4,7 @@ all: build test fmt vet lint
 
 default: build
 
-build: check_go_version
+build: warn_go_version
 	go build -o ./bin/kubectl-check-ownerreferences $(shell ./build/print-ldflags.sh) ./
 
 build-release: check_go_version
@@ -18,7 +18,7 @@ build-release: check_go_version
 	tar -cvzf ./bin/kubectl-check-ownerreferences-darwin-arm64.tar.gz LICENSE -C ./bin/darwin/arm64 kubectl-check-ownerreferences
 	tar -cvzf ./bin/kubectl-check-ownerreferences-linux-amd64.tar.gz  LICENSE -C ./bin/linux/amd64  kubectl-check-ownerreferences
 
-install: check_go_version
+install: warn_go_version
 	go install $(shell ./build/print-ldflags.sh) ./
 
 clean:
@@ -62,5 +62,18 @@ check_go_version:
 		echo "Expected: go version go1.13.*, go1.14.*, go1.15.*, or devel"; \
 		echo "Found:    $$OUTPUT"; \
 		exit 1; \
+	;; \
+	esac
+
+# Check go version but avoid blocking people running local builds/installs
+warn_go_version:
+	@OUTPUT=`go version`; \
+	case "$$OUTPUT" in \
+	*"go1.15"*);; \
+	*"go1.16"*);; \
+	*"devel"*);; \
+	*) \
+		echo "Expected: go version go1.13.*, go1.14.*, go1.15.*, or devel"; \
+		echo "Found:    $$OUTPUT"; \
 	;; \
 	esac
