@@ -15,5 +15,6 @@
 # limitations under the License.
 
 version=$($(dirname "${BASH_SOURCE}")/print-version.sh)
+goversion=$(go env GOVERSION)
 
-echo "-ldflags \"-X sigs.k8s.io/kubectl-check-ownerreferences/pkg.Version=${version}\""
+echo "-ldflags \"-X sigs.k8s.io/kubectl-check-ownerreferences/pkg.Version=${version} -X sigs.k8s.io/kubectl-check-ownerreferences/pkg.GoVersion=${goversion}\""

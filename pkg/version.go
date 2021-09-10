@@ -18,3 +18,6 @@ package pkg
 
 // Version indicates the build version, and is intended to be overridden via build flags.
 var Version = "devel"
+
+// GoVersion indicates the version of go this was built with, and is intended to be overridden via build flags.
+var GoVersion = "unknown go version"
