@@ -65,7 +65,7 @@ func main() {
 	pflag.Parse()
 
 	if version {
-		fmt.Printf("kubectl-check-ownerreferences version %s\n", pkg.Version)
+		fmt.Printf("kubectl-check-ownerreferences version %s (built with %v)\n", pkg.Version, pkg.GoVersion)
 		os.Exit(0)
 	}
 
